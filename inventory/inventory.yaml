@@ -1,0 +1,83 @@
+# Single source of truth for device and service identifiers.
+#
+# Loaded as OPA data (data.devices / data.services) by the policy, pytest and
+# Ansible, so tests and automation cannot drift apart. Identifiers (device IDs,
+# IPs, ports) are pinned from the Phase 1 design page:
+#   portfolio_demos/project_2.html
+#
+# Service ports are not shown on the page; they use the standard port for each
+# protocol (BACnet/IP 47808/udp, MQTT 1883/tcp, HTTPS 443/tcp).
+#
+# WireGuard public keys are generated at deploy time and never committed.
+
+devices:
+  bacnet-controller-hvac-01:
+    label: "HVAC BACnet controller"
+    type: bacnet-controller
+    segment: ot-a
+    status: active
+    simulator: "BAC0 (Python)"
+    ip: 10.20.40.11            # address on the trusted local OT segment
+    protocol: bacnet-ip
+    port: 47809                # source port used by the device (per design page)
+    allowed_services:
+      - bms-plant-controller
+    wireguard:
+      ip: 10.88.0.2            # tunnel endpoint assigned by the gateway
+
+  mqtt-sensor-temp-01:
+    label: "Temperature MQTT sensor"
+    type: mqtt-sensor
+    segment: ot-a
+    status: active
+    simulator: "Eclipse Mosquitto"
+    ip: 10.20.40.21
+    protocol: mqtt
+    port: 1883
+    allowed_services:
+      - bms-historian
+    wireguard:
+      ip: 10.88.0.3
+
+  bacnet-controller-hvac-02:
+    label: "HVAC BACnet controller #2"
+    type: bacnet-controller
+    segment: ot-a
+    status: active
+    simulator: "BAC0 (Python)"
+    ip: 10.20.40.12
+    protocol: bacnet-ip
+    port: 47809
+    allowed_services:
+      - bms-plant-controller
+    wireguard:
+      ip: 10.88.0.4
+
+services:
+  bms-plant-controller:
+    label: "BMS plant controller"
+    segment: bms-core
+    ip: 172.16.5.10
+    port: 47808                # BACnet/IP standard UDP port
+    protocol: bacnet-ip
+
+  bms-historian:
+    label: "BMS historian"
+    segment: bms-core
+    ip: 172.16.5.11
+    port: 1883                 # MQTT broker
+    protocol: mqtt
+
+  hr-portal:
+    label: "HR portal (IT core)"
+    segment: it-core
+    ip: 172.16.9.4
+    port: 443
+    protocol: https
+
+  ot-segment-b:
+    label: "OT segment B (lighting)"
+    segment: ot-b
+    ip: 10.20.41.5
+    port: 47808                # BACnet/IP standard UDP port
+    protocol: bacnet-ip
