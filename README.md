@@ -52,7 +52,7 @@ Prerequisites: **OPA v1.21.1** (pinned — `opa version` should say
 opa check --strict policy/
 
 # 2. Native Rego tests, run against the real inventory (14 cases):
-scripts/run_opa_tests.sh -v
+bash scripts/run_opa_tests.sh -v
 
 # 3. Pytest against a real OPA REST server (15 cases):
 python -m pytest tests/ -v
