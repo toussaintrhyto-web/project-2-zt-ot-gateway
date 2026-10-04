@@ -1,0 +1,21 @@
+# Secrets — never commit keys, vault passwords or env files (plan §5)
+*.key
+*.pem
+id_*
+wg_private*
+vault_password*
+.env
+*.env
+
+# Python
+__pycache__/
+.pytest_cache/
+.venv/
+venv/
+
+# Ansible
+*.retry
+ansible.cfg.local
+
+# OS
+.DS_Store

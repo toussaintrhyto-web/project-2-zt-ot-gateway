@@ -1,0 +1,43 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  policy-and-api-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # OPA version is pinned here and in the README; bump both together.
+      - name: Install OPA v1.21.1 (pinned, checksum verified)
+        env:
+          OPA_VERSION: v1.21.1
+        run: |
+          curl -sSLO "https://github.com/open-policy-agent/opa/releases/download/${OPA_VERSION}/opa_linux_amd64_static"
+          curl -sSLO "https://github.com/open-policy-agent/opa/releases/download/${OPA_VERSION}/opa_linux_amd64_static.sha256"
+          sha256sum -c opa_linux_amd64_static.sha256
+          sudo install -m 0755 opa_linux_amd64_static /usr/local/bin/opa
+          opa version
+
+      - name: Check policy (strict mode)
+        run: opa check --strict policy/
+
+      - name: Native Rego tests (against the real inventory)
+        run: scripts/run_opa_tests.sh
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Python test dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+
+      - name: Pytest (OPA REST decision API)
+        run: python -m pytest tests/ -v
