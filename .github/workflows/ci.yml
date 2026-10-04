@@ -27,7 +27,7 @@ jobs:
         run: opa check --strict policy/
 
       - name: Native Rego tests (against the real inventory)
-        run: scripts/run_opa_tests.sh
+        run: bash scripts/run_opa_tests.sh
 
       - name: Set up Python 3.12
         uses: actions/setup-python@v5
